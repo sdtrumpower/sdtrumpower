@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Launch In-Person Signing - DocuSign Demo</title>
+</head>
+<body>
+  <h2>Launch Skills Assessment (Demo)</h2>
+  <button onclick="launchEnvelope()">Start In-Person Assessment</button>
+
+  <script>
+    async function launchEnvelope() {
+      // Replace with your values
+      const accessToken = "eyJ0eXAiOiJNVCIsImFsZyI6IlJTMjU2Iiwia2lkIjoiNjgxODVmZjEtNGU1MS00Y2U5LWFmMWMtNjg5ODEyMjAzMzE3In0.AQsAAAABAAUABwCAKTkTXZndSAgAgGlcIaCZ3UgCAONCht-Pi61AomBEUmiSikQVAAEAAAAYAAEAAAAFAAAADQAkAAAAMjBhOTk0N2EtZGQ2OS00MDVjLTkzNzctNWIyZmE2NDJmZTVjIgAkAAAAMjBhOTk0N2EtZGQ2OS00MDVjLTkzNzctNWIyZmE2NDJmZTVjMACAwiOQ9IPdSDcAWh0ZqtGigk6yQEu63D0VLBIAAQAAAA0AAAByZWZyZXNoX3Rva2Vu.x3hQPXFw9nqlC2WLZVkHLP5wQa4W1EWO8C3sLwIV695Pmbw0a_yez95ZUYuFtM-VQVskiLpwFAUPNnRWySGKRPokNI0RqDFYk6z3yB-kz6dZp6goDN7kEjELQJ2PJ-1IEc6hq8WuV8fm8PPcpgCvDhtdWu8QoyDvwhu4HYwtLluNSlDAJL7mEj_rxYF_NgcpoldEh1Te6U7ILYdNYVghScEUlMLLK3yhtJBwQk0RkUMKRzwXZcHuowyp5UoWj4jeXa7hC7ZbioaBR8IueGdNQP8oXmPf5JCUQxt7pga9lXStu2KrKLcvflExVw7R4I9I8BieOEMPAJNpTW9fOWUJjQ"; // Use OAuth 2.0 token
+      const accountId = "17fafa7d-50c6-434c-8fad-7c72919b89f4";
+      const templateId = "17ba3481-f7cd-4c73-a5c0-9a9e6d0a22fb";
+      const apiUrl = `https://demo.docusign.net/restapi/v2.1/accounts/${accountId}/envelopes`;
+
+      const envelopeDefinition = {
+        templateId: templateId,
+        templateRoles: [
+          {
+            roleName: "Supervisor",
+            name: "Scott Docusign",
+            email: "sdtdsign+iam.com",
+            inPersonSignerName: "Nancy Nurse",
+            clientUserId: "1",
+            recipientId: "1"
+          },
+          {
+            roleName: "Nurse",
+            name: "Nancy Nurse",
+            email: "placeholder@example.com", // DocuSign needs an email, but it won't be used
+            clientUserId: "2",
+            recipientId: "2"
+          },
+          {
+            roleName: "Supervisor",
+            name: "Scott Docusign",
+            email: "sdtdsign+iam@gmail.com",
+            clientUserId: "3",
+            recipientId: "3"
+          }
+        ],
+        status: "sent"
+      };
+
+      // Create the envelope
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(envelopeDefinition)
+      });
+
+      const envelope = await response.json();
+      const envelopeId = envelope.envelopeId;
+
+      // Generate recipient view (in-person signing URL for nurse)
+      const viewRequest = {
+        authenticationMethod: "none",
+        clientUserId: "2", // For Nurse
+        userName: "Nurse Nancy",
+        email: "placeholder@example.com",
+        returnUrl: "https://www.docusign.com"
+      };
+
+      const viewResponse = await fetch(`${apiUrl}/${envelopeId}/views/recipient`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(viewRequest)
+      });
+
+      const signingUrl = await viewResponse.json();
+      window.open(signingUrl.url, "_blank");
+    }
+  </script>
+</body>
+</html>
