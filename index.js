@@ -13,7 +13,7 @@ app.get('/oauth', async (req, res) => {
     const code = req.query.code;
     
     // Exchange authorization code for access token
-    const tokenUrl = 'https://account.docusign.com/oauth/token';
+    const tokenUrl = 'https://account-d.docusign.com/oauth/token';
     const body = querystring.stringify({
         grant_type: 'authorization_code',
         code,
